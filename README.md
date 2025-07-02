@@ -6,11 +6,11 @@ RESTful API para gerenciamento de projetos e tarefas com Laravel 11.
 
 Sistema completo de gerenciamento de tarefas com:
 
-- Autenticação JWT
-- CRUD de Projetos e Tarefas
-- Sistema de Equipes
-- Comentários
-- Dashboard com estatísticas
+- ✅ Autenticação JWT com Laravel Sanctum
+- 🔄 CRUD de Projetos e Tarefas
+- 👥 Sistema de Equipes
+- 💬 Comentários
+- 📊 Dashboard com estatísticas
 
 ## 🛠️ Tecnologias
 
@@ -52,14 +52,58 @@ php artisan migrate
 php artisan serve
 ```
 
-## 📚 Documentação
+## 📚 Documentação da API
 
-Em desenvolvimento...
+### Autenticação
+
+#### Registrar Usuário
+
+```http
+POST /api/v1/register
+Content-Type: application/json
+
+{
+  "name": "João Silva",
+  "email": "joao@example.com",
+  "password": "senha123",
+  "password_confirmation": "senha123"
+}
+```
+
+#### Login
+
+```http
+POST /api/v1/login
+Content-Type: application/json
+
+{
+  "email": "joao@example.com",
+  "password": "senha123"
+}
+```
+
+#### Ver Perfil
+
+```http
+GET /api/v1/me
+Authorization: Bearer {token}
+```
+
+#### Logout
+
+```http
+POST /api/v1/logout
+Authorization: Bearer {token}
+```
 
 ## 🧪 Testes
 
 ```bash
+# Rodar todos os testes
 php artisan test
+
+# Rodar testes específicos
+php artisan test --filter Auth
 ```
 
 ## 📝 Licença
@@ -68,23 +112,23 @@ MIT
 
 ## 👤 Autor
 
-Seu Nome - [GitHub](https://github.com/seu-usuario)
+Leandro Sacramento de Almeida - [GitHub](https://github.com/leandro-almeida98)
 
 ````
 
 ---
 
-## ✅ Commit 1
+## ✅ Commit
 
 ```bash
 git add .
-git commit -m "feat: initial project setup and database configuration
+git commit -m "feat: implementa sistema de autenticação com Sanctum
 
-- Configure Laravel Sanctum for API authentication
-- Setup database connection
-- Configure CORS
-- Update User model with HasApiTokens
-- Add comprehensive README.md"
+- Adiciona endpoints de registro, login e logout
+- Cria validações customizadas para autenticação
+- Implementa UserResource para padronizar respostas
+- Adiciona testes automatizados para autenticação
+- Atualiza documentação com exemplos de uso da API"
 
 git push origin main
 ````
