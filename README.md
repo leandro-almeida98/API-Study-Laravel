@@ -7,10 +7,11 @@ RESTful API para gerenciamento de projetos e tarefas com Laravel 11.
 Sistema completo de gerenciamento de tarefas com:
 
 - ✅ Autenticação JWT com Laravel Sanctum
-- 🔄 CRUD de Projetos e Tarefas
-- 👥 Sistema de Equipes
-- 💬 Comentários
-- 📊 Dashboard com estatísticas
+- ✅ CRUD completo de Projetos
+- 🔄 CRUD de Tarefas (em desenvolvimento)
+- 👥 Sistema de Equipes (em desenvolvimento)
+- 💬 Comentários (em desenvolvimento)
+- 📊 Dashboard com estatísticas (em desenvolvimento)
 
 ## 🛠️ Tecnologias
 
@@ -30,7 +31,7 @@ Sistema completo de gerenciamento de tarefas com:
 
 ```bash
 # Clonar repositório
-git clone https://github.com/seu-usuario/task-manager-api.git
+git clone https://github.com/leandro-almeida98/task-manager-api.git
 cd task-manager-api
 
 # Instalar dependências
@@ -70,6 +71,24 @@ Content-Type: application/json
 }
 ```
 
+**Resposta:**
+
+```json
+{
+    "message": "Usuário registrado com sucesso!",
+    "data": {
+        "user": {
+            "id": 1,
+            "name": "João Silva",
+            "email": "joao@example.com",
+            "created_at": "2024-01-19T20:00:00.000000Z",
+            "updated_at": "2024-01-19T20:00:00.000000Z"
+        },
+        "token": "1|abc123..."
+    }
+}
+```
+
 #### Login
 
 ```http
@@ -96,6 +115,92 @@ POST /api/v1/logout
 Authorization: Bearer {token}
 ```
 
+---
+
+### Projetos
+
+#### Listar Projetos
+
+```http
+GET /api/v1/projects
+Authorization: Bearer {token}
+
+# Filtros opcionais:
+GET /api/v1/projects?status=active
+GET /api/v1/projects?search=Laravel
+```
+
+**Resposta:**
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Projeto Laravel",
+      "description": "Descrição do projeto",
+      "status": "active",
+      "deadline": "2025-12-31",
+      "is_overdue": false,
+      "days_until_deadline": 150,
+      "owner": {
+        "id": 1,
+        "name": "João Silva",
+        "email": "joao@example.com"
+      },
+      "created_at": "2024-01-19T20:00:00.000000Z",
+      "updated_at": "2024-01-19T20:00:00.000000Z"
+    }
+  ],
+  "links": {...},
+  "meta": {...}
+}
+```
+
+#### Criar Projeto
+
+```http
+POST /api/v1/projects
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "name": "Novo Projeto",
+  "description": "Descrição do projeto",
+  "status": "active",
+  "deadline": "2025-12-31"
+}
+```
+
+#### Ver Projeto
+
+```http
+GET /api/v1/projects/{id}
+Authorization: Bearer {token}
+```
+
+#### Atualizar Projeto
+
+```http
+PUT /api/v1/projects/{id}
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "name": "Projeto Atualizado",
+  "status": "completed"
+}
+```
+
+#### Deletar Projeto
+
+```http
+DELETE /api/v1/projects/{id}
+Authorization: Bearer {token}
+```
+
+---
+
 ## 🧪 Testes
 
 ```bash
@@ -104,6 +209,13 @@ php artisan test
 
 # Rodar testes específicos
 php artisan test --filter Auth
+php artisan test --filter Project
+
+# Com detalhes
+php artisan test --testdox
+
+# Com coverage
+php artisan test --coverage
 ```
 
 ## 📝 Licença
@@ -113,22 +225,3 @@ MIT
 ## 👤 Autor
 
 Leandro Sacramento de Almeida - [GitHub](https://github.com/leandro-almeida98)
-
-````
-
----
-
-## ✅ Commit
-
-```bash
-git add .
-git commit -m "feat: implementa sistema de autenticação com Sanctum
-
-- Adiciona endpoints de registro, login e logout
-- Cria validações customizadas para autenticação
-- Implementa UserResource para padronizar respostas
-- Adiciona testes automatizados para autenticação
-- Atualiza documentação com exemplos de uso da API"
-
-git push origin main
-````

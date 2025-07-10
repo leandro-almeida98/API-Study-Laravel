@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\LogoutController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
+use App\Http\Controllers\Api\V1\ProjectController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +22,9 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
             'data' => new \App\Http\Resources\UserResource($request->user()),
         ]);
     })->name('auth.me');
+
+    // Projetos
+    Route::apiResource('projects', ProjectController::class);
 });
 
 // Health check
