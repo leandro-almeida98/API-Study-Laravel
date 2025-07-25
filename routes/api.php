@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\LogoutController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\ProjectController;
+use App\Http\Controllers\Api\V1\TaskController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +26,9 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
     // Projetos
     Route::apiResource('projects', ProjectController::class);
+
+    // Tarefas
+    Route::apiResource('tasks', TaskController::class);
 });
 
 // Health check

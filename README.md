@@ -8,8 +8,8 @@ Sistema completo de gerenciamento de tarefas com:
 
 - ✅ Autenticação JWT com Laravel Sanctum
 - ✅ CRUD completo de Projetos
-- 🔄 CRUD de Tarefas (em desenvolvimento)
-- 👥 Sistema de Equipes (em desenvolvimento)
+- ✅ CRUD completo de Tarefas
+- 🔄 Sistema de Equipes (em desenvolvimento)
 - 💬 Comentários (em desenvolvimento)
 - 📊 Dashboard com estatísticas (em desenvolvimento)
 
@@ -71,24 +71,6 @@ Content-Type: application/json
 }
 ```
 
-**Resposta:**
-
-```json
-{
-    "message": "Usuário registrado com sucesso!",
-    "data": {
-        "user": {
-            "id": 1,
-            "name": "João Silva",
-            "email": "joao@example.com",
-            "created_at": "2024-01-19T20:00:00.000000Z",
-            "updated_at": "2024-01-19T20:00:00.000000Z"
-        },
-        "token": "1|abc123..."
-    }
-}
-```
-
 #### Login
 
 ```http
@@ -125,36 +107,9 @@ Authorization: Bearer {token}
 GET /api/v1/projects
 Authorization: Bearer {token}
 
-# Filtros opcionais:
+# Filtros:
 GET /api/v1/projects?status=active
 GET /api/v1/projects?search=Laravel
-```
-
-**Resposta:**
-
-```json
-{
-  "data": [
-    {
-      "id": 1,
-      "name": "Projeto Laravel",
-      "description": "Descrição do projeto",
-      "status": "active",
-      "deadline": "2025-12-31",
-      "is_overdue": false,
-      "days_until_deadline": 150,
-      "owner": {
-        "id": 1,
-        "name": "João Silva",
-        "email": "joao@example.com"
-      },
-      "created_at": "2024-01-19T20:00:00.000000Z",
-      "updated_at": "2024-01-19T20:00:00.000000Z"
-    }
-  ],
-  "links": {...},
-  "meta": {...}
-}
 ```
 
 #### Criar Projeto
@@ -201,6 +156,126 @@ Authorization: Bearer {token}
 
 ---
 
+### Tarefas
+
+#### Listar Tarefas
+
+```http
+GET /api/v1/tasks
+Authorization: Bearer {token}
+
+# Filtros disponíveis:
+GET /api/v1/tasks?status=todo
+GET /api/v1/tasks?priority=high
+GET /api/v1/tasks?project_id=1
+GET /api/v1/tasks?assigned_to_me=1
+GET /api/v1/tasks?overdue=1
+```
+
+**Resposta:**
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "Implementar autenticação",
+      "description": "Criar sistema de login com JWT",
+      "status": "in_progress",
+      "priority": "high",
+      "due_date": "2025-08-15",
+      "estimated_hours": 8,
+      "is_overdue": false,
+      "days_until_due": 25,
+      "project": {
+        "id": 1,
+        "name": "API Laravel"
+      },
+      "assigned_to": {
+        "id": 2,
+        "name": "Maria Santos",
+        "email": "maria@example.com"
+      },
+      "created_by": {
+        "id": 1,
+        "name": "João Silva"
+      },
+      "created_at": "2024-01-19T20:00:00.000000Z",
+      "updated_at": "2024-01-19T20:00:00.000000Z"
+    }
+  ],
+  "links": {...},
+  "meta": {...}
+}
+```
+
+#### Criar Tarefa
+
+```http
+POST /api/v1/tasks
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "project_id": 1,
+  "title": "Implementar autenticação",
+  "description": "Criar sistema de login com JWT",
+  "status": "todo",
+  "priority": "high",
+  "assigned_to": 2,
+  "due_date": "2025-08-15",
+  "estimated_hours": 8
+}
+```
+
+#### Ver Tarefa
+
+```http
+GET /api/v1/tasks/{id}
+Authorization: Bearer {token}
+```
+
+#### Atualizar Tarefa
+
+```http
+PUT /api/v1/tasks/{id}
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "title": "Tarefa Atualizada",
+  "status": "done",
+  "priority": "medium"
+}
+```
+
+#### Deletar Tarefa
+
+```http
+DELETE /api/v1/tasks/{id}
+Authorization: Bearer {token}
+```
+
+---
+
+## 🔐 Permissões
+
+### Projetos
+
+- **Criar:** Qualquer usuário autenticado
+- **Visualizar:** Apenas o dono
+- **Atualizar:** Apenas o dono
+- **Deletar:** Apenas o dono
+
+### Tarefas
+
+- **Criar:** Qualquer usuário autenticado (em projetos próprios)
+- **Visualizar:** Criador, usuário atribuído ou dono do projeto
+- **Atualizar:** Criador, usuário atribuído ou dono do projeto
+- **Deletar:** Criador ou dono do projeto
+
+---
+
 ## 🧪 Testes
 
 ```bash
@@ -210,6 +285,7 @@ php artisan test
 # Rodar testes específicos
 php artisan test --filter Auth
 php artisan test --filter Project
+php artisan test --filter Task
 
 # Com detalhes
 php artisan test --testdox
@@ -225,3 +301,31 @@ MIT
 ## 👤 Autor
 
 Leandro Sacramento de Almeida - [GitHub](https://github.com/leandro-almeida98)
+
+````
+
+---
+
+## ✅ Verificar Rotas
+
+```bash
+php artisan route:list --path=api/v1/tasks
+````
+
+Deve mostrar:
+
+```
+GET|HEAD   api/v1/tasks ............. tasks.index
+POST       api/v1/tasks ............. tasks.store
+GET|HEAD   api/v1/tasks/{task} ...... tasks.show
+PUT|PATCH  api/v1/tasks/{task} ...... tasks.update
+DELETE     api/v1/tasks/{task} ...... tasks.destroy
+```
+
+---
+
+## 🧪 Rodar Testes
+
+```bash
+php artisan test --filter Task
+```

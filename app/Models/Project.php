@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Project extends Model
@@ -28,6 +29,14 @@ class Project extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Relacionamento: Projeto tem muitas tarefas
+     */
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
+
     public function scopeActive($query)
     {
         return $query->where('status', 'active');
@@ -36,5 +45,10 @@ class Project extends Model
     public function scopeByUser($query, $userId)
     {
         return $query->where('user_id', $userId);
+    }
+
+    public function scopeUpcoming($query, $days = 7)
+    {
+        return $query->whereBetween('deadline', [now(), now()->addDays($days)]);
     }
 }
