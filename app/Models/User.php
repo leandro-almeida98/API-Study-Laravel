@@ -31,11 +31,26 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * Relacionamento: Usuário tem muitos projetos
-     */
     public function projects(): HasMany
     {
         return $this->hasMany(Project::class);
+    }
+
+    public function createdTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'created_by');
+    }
+
+    public function assignedTasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'assigned_to');
+    }
+
+    /**
+     * Relacionamento: Comentários do usuário
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
     }
 }

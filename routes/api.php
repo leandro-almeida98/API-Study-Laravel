@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\LogoutController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
+use App\Http\Controllers\Api\V1\CommentController;
 use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\TaskController;
 use Illuminate\Http\Request;
@@ -29,6 +30,14 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
     // Tarefas
     Route::apiResource('tasks', TaskController::class);
+
+    // Comentários (nested resource)
+    Route::apiResource('tasks.comments', CommentController::class)
+        ->except(['update'])
+        ->shallow();
+
+    // Rota separada para update (não precisa do task_id)
+    Route::put('/comments/{comment}', [CommentController::class, 'update']);
 });
 
 // Health check
