@@ -1,25 +1,27 @@
 # 🚀 Task Manager API
 
-RESTful API para gerenciamento de projetos e tarefas com Laravel 11.
+RESTful API completa para gerenciamento de projetos e tarefas com sistema de equipes e permissões hierárquicas.
 
 ## 🎯 Sobre o Projeto
 
-Sistema completo de gerenciamento de tarefas com:
+Sistema profissional de gerenciamento de tarefas com:
 
 - ✅ Autenticação JWT com Laravel Sanctum
 - ✅ CRUD completo de Projetos
 - ✅ CRUD completo de Tarefas
-- 🔄 Sistema de Equipes (em desenvolvimento)
-- 💬 Comentários (em desenvolvimento)
-- 📊 Dashboard com estatísticas (em desenvolvimento)
+- ✅ Sistema de Comentários em Tarefas
+- ✅ Sistema de Equipes com Membros
+- ✅ Sistema de Permissões Hierárquico (Owner, Admin, Member, Viewer)
+- ✅ Soft Deletes em todas as entidades
+- ✅ 78 testes automatizados com Pest PHP
 
 ## 🛠️ Tecnologias
 
-- PHP 8.3
-- Laravel 11
-- MySQL 8.0
-- Laravel Sanctum
-- Pest PHP
+- **Backend:** PHP 8.3, Laravel 11
+- **Banco de Dados:** MySQL 8.0
+- **Autenticação:** Laravel Sanctum
+- **Testes:** Pest PHP
+- **Padrões:** RESTful API, Repository Pattern, Service Layer
 
 ## 📋 Pré-requisitos
 
@@ -42,12 +44,15 @@ cp .env.example .env
 php artisan key:generate
 
 # Configurar banco de dados no .env
-# DB_DATABASE=task_manager_api
-# DB_USERNAME=root
-# DB_PASSWORD=
+DB_DATABASE=task_manager_api
+DB_USERNAME=root
+DB_PASSWORD=
 
 # Rodar migrations
 php artisan migrate
+
+# (Opcional) Popular banco com dados de teste
+php artisan db:seed
 
 # Iniciar servidor
 php artisan serve
@@ -55,7 +60,7 @@ php artisan serve
 
 ## 📚 Documentação da API
 
-### Autenticação
+### 🔐 Autenticação
 
 #### Registrar Usuário
 
@@ -83,13 +88,6 @@ Content-Type: application/json
 }
 ```
 
-#### Ver Perfil
-
-```http
-GET /api/v1/me
-Authorization: Bearer {token}
-```
-
 #### Logout
 
 ```http
@@ -99,7 +97,7 @@ Authorization: Bearer {token}
 
 ---
 
-### Projetos
+### 📁 Projetos
 
 #### Listar Projetos
 
@@ -108,8 +106,8 @@ GET /api/v1/projects
 Authorization: Bearer {token}
 
 # Filtros:
-GET /api/v1/projects?status=active
-GET /api/v1/projects?search=Laravel
+?status=active
+?search=Laravel
 ```
 
 #### Criar Projeto
@@ -117,46 +115,19 @@ GET /api/v1/projects?search=Laravel
 ```http
 POST /api/v1/projects
 Authorization: Bearer {token}
-Content-Type: application/json
 
 {
-  "name": "Novo Projeto",
-  "description": "Descrição do projeto",
+  "name": "API Laravel",
+  "description": "Projeto de API REST",
+  "team_id": 1,
   "status": "active",
   "deadline": "2025-12-31"
 }
 ```
 
-#### Ver Projeto
-
-```http
-GET /api/v1/projects/{id}
-Authorization: Bearer {token}
-```
-
-#### Atualizar Projeto
-
-```http
-PUT /api/v1/projects/{id}
-Authorization: Bearer {token}
-Content-Type: application/json
-
-{
-  "name": "Projeto Atualizado",
-  "status": "completed"
-}
-```
-
-#### Deletar Projeto
-
-```http
-DELETE /api/v1/projects/{id}
-Authorization: Bearer {token}
-```
-
 ---
 
-### Tarefas
+### ✅ Tarefas
 
 #### Listar Tarefas
 
@@ -164,49 +135,12 @@ Authorization: Bearer {token}
 GET /api/v1/tasks
 Authorization: Bearer {token}
 
-# Filtros disponíveis:
-GET /api/v1/tasks?status=todo
-GET /api/v1/tasks?priority=high
-GET /api/v1/tasks?project_id=1
-GET /api/v1/tasks?assigned_to_me=1
-GET /api/v1/tasks?overdue=1
-```
-
-**Resposta:**
-
-```json
-{
-  "data": [
-    {
-      "id": 1,
-      "title": "Implementar autenticação",
-      "description": "Criar sistema de login com JWT",
-      "status": "in_progress",
-      "priority": "high",
-      "due_date": "2025-08-15",
-      "estimated_hours": 8,
-      "is_overdue": false,
-      "days_until_due": 25,
-      "project": {
-        "id": 1,
-        "name": "API Laravel"
-      },
-      "assigned_to": {
-        "id": 2,
-        "name": "Maria Santos",
-        "email": "maria@example.com"
-      },
-      "created_by": {
-        "id": 1,
-        "name": "João Silva"
-      },
-      "created_at": "2024-01-19T20:00:00.000000Z",
-      "updated_at": "2024-01-19T20:00:00.000000Z"
-    }
-  ],
-  "links": {...},
-  "meta": {...}
-}
+# Filtros:
+?status=todo
+?priority=high
+?project_id=1
+?assigned_to_me=1
+?overdue=1
 ```
 
 #### Criar Tarefa
@@ -214,12 +148,11 @@ GET /api/v1/tasks?overdue=1
 ```http
 POST /api/v1/tasks
 Authorization: Bearer {token}
-Content-Type: application/json
 
 {
   "project_id": 1,
   "title": "Implementar autenticação",
-  "description": "Criar sistema de login com JWT",
+  "description": "Criar sistema de login",
   "status": "todo",
   "priority": "high",
   "assigned_to": 2,
@@ -228,51 +161,97 @@ Content-Type: application/json
 }
 ```
 
-#### Ver Tarefa
+---
+
+### 💬 Comentários
+
+#### Listar Comentários de uma Tarefa
 
 ```http
-GET /api/v1/tasks/{id}
+GET /api/v1/tasks/{task_id}/comments
 Authorization: Bearer {token}
 ```
 
-#### Atualizar Tarefa
+#### Adicionar Comentário
 
 ```http
-PUT /api/v1/tasks/{id}
+POST /api/v1/tasks/{task_id}/comments
 Authorization: Bearer {token}
-Content-Type: application/json
 
 {
-  "title": "Tarefa Atualizada",
-  "status": "done",
-  "priority": "medium"
+  "content": "Ótimo trabalho! Aprovado ✅"
 }
-```
-
-#### Deletar Tarefa
-
-```http
-DELETE /api/v1/tasks/{id}
-Authorization: Bearer {token}
 ```
 
 ---
 
-## 🔐 Permissões
+### 👥 Equipes
 
-### Projetos
+#### Listar Equipes
 
-- **Criar:** Qualquer usuário autenticado
-- **Visualizar:** Apenas o dono
-- **Atualizar:** Apenas o dono
-- **Deletar:** Apenas o dono
+```http
+GET /api/v1/teams
+Authorization: Bearer {token}
+```
 
-### Tarefas
+#### Criar Equipe
 
-- **Criar:** Qualquer usuário autenticado (em projetos próprios)
-- **Visualizar:** Criador, usuário atribuído ou dono do projeto
-- **Atualizar:** Criador, usuário atribuído ou dono do projeto
-- **Deletar:** Criador ou dono do projeto
+```http
+POST /api/v1/teams
+Authorization: Bearer {token}
+
+{
+  "name": "Equipe de Desenvolvimento",
+  "description": "Time de backend"
+}
+```
+
+#### Adicionar Membro
+
+```http
+POST /api/v1/teams/{team_id}/members
+Authorization: Bearer {token}
+
+{
+  "user_id": 5,
+  "role": "member"
+}
+```
+
+**Roles disponíveis:**
+
+- `owner` - Controle total
+- `admin` - Gerenciar membros e projetos
+- `member` - Gerenciar tarefas
+- `viewer` - Apenas visualizar
+
+---
+
+## 🔐 Sistema de Permissões
+
+### Owner (Proprietário)
+
+- ✅ Gerenciar equipe (editar, deletar)
+- ✅ Gerenciar membros (adicionar, remover, alterar roles)
+- ✅ Gerenciar projetos
+- ✅ Gerenciar tarefas
+- ✅ Visualizar tudo
+
+### Admin (Administrador)
+
+- ✅ Gerenciar membros
+- ✅ Gerenciar projetos
+- ✅ Gerenciar tarefas
+- ✅ Visualizar tudo
+
+### Member (Membro)
+
+- ✅ Gerenciar tarefas
+- ✅ Visualizar tudo
+
+### Viewer (Visualizador)
+
+- ✅ Apenas visualizar
 
 ---
 
@@ -286,6 +265,8 @@ php artisan test
 php artisan test --filter Auth
 php artisan test --filter Project
 php artisan test --filter Task
+php artisan test --filter Comment
+php artisan test --filter Team
 
 # Com detalhes
 php artisan test --testdox
@@ -294,38 +275,133 @@ php artisan test --testdox
 php artisan test --coverage
 ```
 
+**Cobertura de Testes:**
+
+- ✅ 78 testes automatizados
+- ✅ Autenticação (12 testes)
+- ✅ Projetos (12 testes)
+- ✅ Tarefas (18 testes)
+- ✅ Comentários (14 testes)
+- ✅ Equipes (10 testes)
+- ✅ Membros de Equipe (12 testes)
+
+---
+
+## 📊 Estrutura do Banco de Dados
+
+```
+users
+├── id
+├── name
+├── email
+├── password
+└── timestamps
+
+teams
+├── id
+├── name
+├── description
+├── owner_id → users
+└── timestamps
+
+team_members
+├── id
+├── team_id → teams
+├── user_id → users
+├── role (owner, admin, member, viewer)
+└── joined_at
+
+projects
+├── id
+├── user_id → users
+├── team_id → teams
+├── name
+├── description
+├── status
+├── deadline
+└── timestamps
+
+tasks
+├── id
+├── project_id → projects
+├── assigned_to → users
+├── created_by → users
+├── title
+├── description
+├── status
+├── priority
+├── due_date
+├── estimated_hours
+└── timestamps
+
+comments
+├── id
+├── task_id → tasks
+├── user_id → users
+├── content
+└── timestamps
+```
+
+---
+
+## 🎯 Funcionalidades Principais
+
+### ✅ Gerenciamento de Projetos
+
+- Criar, editar, visualizar e deletar projetos
+- Vincular projetos a equipes
+- Filtrar por status e buscar por nome
+- Soft delete
+
+### ✅ Gerenciamento de Tarefas
+
+- CRUD completo de tarefas
+- Atribuir tarefas a usuários
+- Definir prioridades e status
+- Filtros avançados (status, prioridade, projeto, atrasadas)
+- Estimativa de horas
+
+### ✅ Sistema de Comentários
+
+- Comentar em tarefas
+- Editar e deletar próprios comentários
+- Histórico completo de discussões
+
+### ✅ Sistema de Equipes
+
+- Criar e gerenciar equipes
+- Adicionar e remover membros
+- Sistema de permissões hierárquico
+- Vincular projetos a equipes
+
+---
+
 ## 📝 Licença
 
 MIT
 
 ## 👤 Autor
 
-Leandro Sacramento de Almeida - [GitHub](https://github.com/leandro-almeida98)
+**Leandro Sacramento de Almeida**
 
-````
-
----
-
-## ✅ Verificar Rotas
-
-```bash
-php artisan route:list --path=api/v1/tasks
-````
-
-Deve mostrar:
-
-```
-GET|HEAD   api/v1/tasks ............. tasks.index
-POST       api/v1/tasks ............. tasks.store
-GET|HEAD   api/v1/tasks/{task} ...... tasks.show
-PUT|PATCH  api/v1/tasks/{task} ...... tasks.update
-DELETE     api/v1/tasks/{task} ...... tasks.destroy
-```
+- GitHub: [@leandro-almeida98](https://github.com/leandro-almeida98)
+- LinkedIn: https://www.linkedin.com/leandro-almeida2698/
+- Email: leandro.sacramento98@gmail.com
 
 ---
 
-## 🧪 Rodar Testes
+## 🙏 Agradecimentos
 
-```bash
-php artisan test --filter Task
-```
+Projeto desenvolvido como portfólio profissional demonstrando conhecimentos em:
+
+- Laravel 11
+- RESTful APIs
+- Autenticação JWT
+- Testes Automatizados
+- Arquitetura de Software
+- Banco de Dados Relacional
+- Git & GitHub
+
+---
+
+⭐ Se este projeto foi útil, considere dar uma estrela!
