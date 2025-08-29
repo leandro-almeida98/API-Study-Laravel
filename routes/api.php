@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\CommentController;
 use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\TaskController;
+use App\Http\Controllers\Api\V1\TeamController;
+use App\Http\Controllers\Api\V1\TeamMemberController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -38,6 +40,14 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
     // Rota separada para update (não precisa do task_id)
     Route::put('/comments/{comment}', [CommentController::class, 'update']);
+
+    // Equipes
+    Route::apiResource('teams', TeamController::class);
+
+    // Membros de Equipe
+    Route::apiResource('teams.members', TeamMemberController::class)
+        ->except(['show'])
+        ->shallow();
 });
 
 // Health check

@@ -14,6 +14,7 @@ class Project extends Model
 
     protected $fillable = [
         'user_id',
+        'team_id',
         'name',
         'description',
         'status',
@@ -30,8 +31,13 @@ class Project extends Model
     }
 
     /**
-     * Relacionamento: Projeto tem muitas tarefas
+     * Relacionamento: Projeto pertence a uma equipe
      */
+    public function team(): BelongsTo
+    {
+        return $this->belongsTo(Team::class);
+    }
+
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
@@ -50,5 +56,13 @@ class Project extends Model
     public function scopeUpcoming($query, $days = 7)
     {
         return $query->whereBetween('deadline', [now(), now()->addDays($days)]);
+    }
+
+    /**
+     * Scope: Projetos da equipe
+     */
+    public function scopeByTeam($query, $teamId)
+    {
+        return $query->where('team_id', $teamId);
     }
 }
